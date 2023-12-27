@@ -1,6 +1,5 @@
 package org.powerSupply;
 
-import org.powerSupply.source.Electricity;
 import org.powerSupply.source.IPS;
 import org.powerSupply.source.UPS;
 import org.powerSupply.util.MessageBroker;
@@ -12,16 +11,15 @@ public class Main {
     public static void main(String[] args) {
 
         Scanner input = new Scanner(System.in);
-        final Electricity electricity = new Electricity();
         MessageBroker.ELECTRICITY_STATUS = Status.ON;
 
         Thread ipsThread = new Thread(() -> {
 
             IPS ips = new IPS();
             MessageBroker.IPS_STATUS = Status.ON;
-            MessageBroker.IPS_WILLING_TO_RUN = true;
+//            MessageBroker.IPS_WILLING_TO_RUN = true;
             ips.start();
-
+            ips.startCharging();
         });
         ipsThread.setName("# IPS Thread");
         ipsThread.start();
@@ -30,18 +28,12 @@ public class Main {
 
             UPS ups = new UPS();
             MessageBroker.UPS_STATUS = Status.ON;
-            MessageBroker.UPS_WILLING_TO_RUN = true;
+//            MessageBroker.UPS_WILLING_TO_RUN = true;
             ups.start();
+            ups.startCharging();
         });
         upsThread.setName("# UPS Thread");
         upsThread.start();
-
-//        try {
-//            ipsThread.join();
-//            upsThread.join();
-//        } catch (InterruptedException ex) {
-//            ex.printStackTrace();
-//        }
 
         while(true){
             System.out.println("Enter Electricity Status: ");
@@ -57,9 +49,5 @@ public class Main {
                 System.out.println("You Stupid!");
             }
         }
-    }
-
-    public static void flow(Status status) {
-
     }
 }

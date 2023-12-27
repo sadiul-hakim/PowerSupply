@@ -26,41 +26,59 @@ public class IPS {
         this.charge = charge;
     }
 
-    public synchronized void start() {
+    public void start() {
         System.out.println("+------------+ Starting IPS +------------+");
-        try {
-            while (charge > 0 && MessageBroker.IPS_WILLING_TO_RUN) {
-                if (charge == redLightCharge) {
-                    System.out.println("+------------+ RED LIGHT +------------+");
-                }
+        Thread startThread = new Thread(() -> {
+            try {
+                while (true) {
 
-                if (MessageBroker.ELECTRICITY_STATUS.equals(Status.OFF)) {
-                    charge--;
-                    System.out.println("IPS Charge down: "+charge);
-                    TimeUnit.SECONDS.sleep(1);
+                    if (charge > 0) {
+                        if (charge == redLightCharge) {
+                            System.out.println("+------------+ RED LIGHT +------------+");
+                        }
 
-                    if(charge == 0){
-                        System.out.println("IPS is shut down.");
-                        MessageBroker.IPS_WILLING_TO_RUN = false;
+                        if (MessageBroker.ELECTRICITY_STATUS.equals(Status.OFF)) {
+                            charge--;
+                            System.out.println("IPS Charge down: " + charge);
+                            TimeUnit.SECONDS.sleep(1);
+
+                            if (charge == 0) {
+                                System.out.println("IPS is shut down.");
+//                        MessageBroker.IPS_WILLING_TO_RUN = false;
+                                MessageBroker.IPS_STATUS = Status.OFF;
+                            }
+                        }
                     }
                 }
+
+            } catch (InterruptedException ex) {
+                ex.printStackTrace();
             }
-            MessageBroker.IPS_STATUS = Status.OFF;
-        } catch (InterruptedException ex) {
-            ex.printStackTrace();
-        }
+        });
+        startThread.setName("# IPS Start Thread");
+        startThread.start();
     }
 
     public synchronized void startCharging() {
         System.out.println("+------------+ Started Charging IPS +------------+");
-        MessageBroker.IPS_STATUS = Status.ON;
-        try {
-            while (charge < MAX_CAPACITY && MessageBroker.ELECTRICITY_STATUS.equals(Status.ON)) {
-                charge++;
-                TimeUnit.SECONDS.sleep(1);
+
+        Thread chargingThread = new Thread(() -> {
+            try {
+                while (true) {
+
+                    if (charge < MAX_CAPACITY && MessageBroker.ELECTRICITY_STATUS.equals(Status.ON)) {
+                        MessageBroker.IPS_STATUS = Status.ON;
+//                        MessageBroker.IPS_WILLING_TO_RUN = true;
+                        charge++;
+                    }
+                    System.out.println("IPS Charge up: " + charge);
+                    TimeUnit.SECONDS.sleep(1);
+                }
+            } catch (InterruptedException ex) {
+                ex.printStackTrace();
             }
-        } catch (InterruptedException ex) {
-            ex.printStackTrace();
-        }
+        });
+        chargingThread.setName("# IPS Charging Thread");
+        chargingThread.start();
     }
 }
