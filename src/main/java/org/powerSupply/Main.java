@@ -17,7 +17,6 @@ public class Main {
 
             IPS ips = new IPS();
             MessageBroker.IPS_STATUS = Status.ON;
-//            MessageBroker.IPS_WILLING_TO_RUN = true;
             ips.start();
             ips.startCharging();
         });
@@ -28,7 +27,6 @@ public class Main {
 
             UPS ups = new UPS();
             MessageBroker.UPS_STATUS = Status.ON;
-//            MessageBroker.UPS_WILLING_TO_RUN = true;
             ups.start();
             ups.startCharging();
         });

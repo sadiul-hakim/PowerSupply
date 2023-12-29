@@ -6,26 +6,9 @@ import org.powerSupply.util.Status;
 import java.util.concurrent.TimeUnit;
 
 public class UPS {
-    private volatile int charge = 5;
-    private final int MAX_CAPACITY = 5;
-    private final int redLightCharge = 1;
-
-    public int getCharge() {
-        return charge;
-    }
-
-    public int getMAX_CAPACITY() {
-        return MAX_CAPACITY;
-    }
-
-    public int getRedLightCharge() {
-        return redLightCharge;
-    }
-
-    public void setCharge(int charge) {
-        this.charge = charge;
-    }
-
+    private volatile int charge = 300;
+    private final int MAX_CAPACITY = 300;
+    private final int redLightCharge = 60;
     public synchronized void start() {
         System.out.println("+------------+ Starting UPS +------------+");
         Thread startThread = new Thread(() -> {
@@ -45,7 +28,6 @@ public class UPS {
 
                             if (charge == 0) {
                                 System.out.println("UPS is shut down.");
-//                        MessageBroker.UPS_WILLING_TO_RUN = false;
                                 MessageBroker.UPS_STATUS = Status.OFF;
                             }
                         }
@@ -67,7 +49,6 @@ public class UPS {
                 while (true) {
                     if (charge < MAX_CAPACITY && MessageBroker.IPS_STATUS.equals(Status.ON)) {
                         MessageBroker.UPS_STATUS = Status.ON;
-//                        MessageBroker.UPS_WILLING_TO_RUN = true;
                         synchronized (this) {
                             charge++;
                         }
